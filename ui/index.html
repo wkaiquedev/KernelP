@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KernelP</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-state="idle">
+
+<canvas id="scene"></canvas>
+<div class="aurora"></div>
+<div class="grain"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#ffffff"/>
+      <stop offset="26%" stop-color="#ffd9e8"/>
+      <stop offset="52%" stop-color="#ff2d78"/>
+      <stop offset="100%" stop-color="#ff2d78" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="haloGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#ff4f92" stop-opacity=".9"/>
+      <stop offset="45%" stop-color="#ff0a5c" stop-opacity=".35"/>
+      <stop offset="100%" stop-color="#ff0a5c" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="jetGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#ff6aa0" stop-opacity="0"/>
+      <stop offset="42%"  stop-color="#ff5c98"/>
+      <stop offset="50%"  stop-color="#ffffff"/>
+      <stop offset="58%"  stop-color="#ff5c98"/>
+      <stop offset="100%" stop-color="#ff6aa0" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="diskGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#ff0a5c" stop-opacity="0"/>
+      <stop offset="20%"  stop-color="#ff2d78"/>
+      <stop offset="50%"  stop-color="#ffd9e8"/>
+      <stop offset="80%"  stop-color="#ff2d78"/>
+      <stop offset="100%" stop-color="#ff0a5c" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="spikeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#ff2d78"/>
+    </linearGradient>
+    <filter id="soft" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="2.4"/>
+    </filter>
+    <filter id="softBig" x="-120%" y="-120%" width="340%" height="340%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+
+    <symbol id="quasar" viewBox="0 0 200 200">
+      <g class="q-halo"><circle cx="100" cy="100" r="72" fill="url(#haloGrad)" filter="url(#softBig)"/></g>
+
+      <g class="q-disk">
+        <ellipse cx="100" cy="100" rx="82" ry="19" fill="none" stroke="url(#diskGrad)" stroke-width="2.4" transform="rotate(-24 100 100)"/>
+        <ellipse cx="100" cy="100" rx="60" ry="13" fill="none" stroke="url(#diskGrad)" stroke-width="1.4" opacity=".7" transform="rotate(-24 100 100)"/>
+      </g>
+
+      <g class="q-jet" filter="url(#soft)">
+        <polygon points="95.5,100 100,3 104.5,100" fill="url(#jetGrad)"/>
+        <polygon points="97,100 100,168 103,100" fill="url(#jetGrad)" opacity=".85"/>
+      </g>
+
+      <g class="q-spikes">
+        <path d="M100,8 L108,84 L150,100 L108,116 L100,150 L92,116 L58,100 L92,84 Z"
+              fill="url(#spikeGrad)" filter="url(#soft)" transform="rotate(9 100 100)"/>
+        <path class="q-spark" d="M100,44 L104,96 L138,100 L104,104 L100,150 L96,104 L70,100 L96,96 Z"
+              fill="#ffffff" opacity=".85" transform="rotate(52 100 100)"/>
+      </g>
+
+      <g class="q-core">
+        <circle cx="100" cy="100" r="20" fill="url(#coreGrad)" filter="url(#soft)"/>
+        <circle cx="100" cy="100" r="6.5" fill="#ffffff"/>
+      </g>
+
+      <circle class="q-orbit o1" cx="100" cy="100" r="2.6" fill="#ffd9e8"/>
+      <circle class="q-orbit o2" cx="100" cy="100" r="1.8" fill="#ff6aa0"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="splash">
+  <svg class="splash-mark" viewBox="0 0 200 200"><use href="#quasar"/></svg>
+  <div class="splash-word">KERNEL<span>P</span></div>
+  <div class="splash-tag">compressor de video</div>
+</div>
+
+<main id="app">
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 200 200"><use href="#quasar"/></svg>
+      <span class="brand-name">Kernel<b>P</b></span>
+    </div>
+    <div class="chips">
+      <span class="chip" id="chipGpu">
+        <svg viewBox="0 0 24 24" class="ic"><rect x="4" y="4" width="16" height="16" rx="3"/><rect x="8" y="8" width="8" height="8" rx="1"/><path d="M2 9h2M2 15h2M20 9h2M20 15h2M9 2v2M15 2v2M9 20v2M15 20v2"/></svg>
+        <span id="gpuName">detectando</span>
+      </span>
+      <span class="chip pink" id="chipEnc">
+        <svg viewBox="0 0 24 24" class="ic"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>
+        <span id="encName">encoder</span>
+      </span>
+    </div>
+  </header>
+
+  <section class="stage">
+
+    <div class="panel" id="panel-idle">
+      <svg class="hero" viewBox="0 0 200 200"><use href="#quasar"/></svg>
+      <h1 class="title">Compressor</h1>
+      <p class="subtitle">Siga wkaiquedev no github</p>
+      <div class="drop" id="drop">
+        <svg viewBox="0 0 24 24" class="ic big"><path d="M12 16V4M12 4 7 9M12 4l5 5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+        <button class="btn primary" id="btnPick">Escolher video</button>
+        <span class="hint">ou arraste um arquivo</span>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-config">
+      <div class="filecard">
+        <div class="thumb"><svg viewBox="0 0 24 24" class="ic"><path d="M4 4h16v16H4z"/><path d="M10 9l5 3-5 3z"/></svg></div>
+        <div class="fileinfo">
+          <div class="fname" id="fName">arquivo</div>
+          <div class="fmeta">
+            <span>Tamanho <b id="fSize">0</b></span>
+            <span>Resolucao <b id="fRes">0</b></span>
+            <span>Duracao <b id="fDur">0</b></span>
+          </div>
+        </div>
+        <button class="btn ghost small" id="btnSwap">Trocar</button>
+      </div>
+
+      <div class="controls">
+        <div class="ctl">
+          <div class="ctl-label">Quanto reduzir</div>
+          <div class="seg" id="segReduce">
+            <button data-v="50">Leve 50%</button>
+            <button data-v="70">Forte 70%</button>
+            <button data-v="90" class="on">Extrema 90%</button>
+          </div>
+        </div>
+
+        <div class="ctl">
+          <div class="ctl-label">Codec</div>
+          <div class="seg" id="segCodec">
+            <button data-v="hevc" class="on">HEVC</button>
+            <button data-v="av1" id="btnAv1">AV1</button>
+          </div>
+          <div class="ctl-hint" id="codecHint">HEVC abre em qualquer aparelho</div>
+        </div>
+
+        <div class="ctl">
+          <div class="ctl-label">Velocidade</div>
+          <div class="seg" id="segSpeed">
+            <button data-v="turbo">Turbo</button>
+            <button data-v="balanced" class="on">Equilibrio</button>
+            <button data-v="quality">Maxima qualidade</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="estimate">
+        <div class="est-row">
+          <span>Tamanho estimado</span>
+          <b id="estSize">0</b>
+        </div>
+        <div class="est-bar"><i id="estBar"></i></div>
+      </div>
+
+      <button class="btn primary xl" id="btnGo">
+        <svg viewBox="0 0 24 24" class="ic"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>
+        Comprimir agora
+      </button>
+    </div>
+
+    <div class="panel" id="panel-run">
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 220 220">
+          <circle class="ring-bg" cx="110" cy="110" r="96"/>
+          <circle class="ring-fg" cx="110" cy="110" r="96" id="ringFg"/>
+        </svg>
+        <svg class="ring-mark" viewBox="0 0 200 200"><use href="#quasar"/></svg>
+        <div class="ring-num"><span id="pct">0</span><i>%</i></div>
+      </div>
+      <div class="runstats">
+        <div class="stat"><span>Velocidade</span><b id="stSpeed">0x</b></div>
+        <div class="stat"><span>Tempo restante</span><b id="stEta">0s</b></div>
+        <div class="stat"><span>Quadros por segundo</span><b id="stFps">0</b></div>
+        <div class="stat"><span>Tamanho atual</span><b id="stSize">0</b></div>
+      </div>
+      <button class="btn ghost" id="btnCancel">Cancelar</button>
+    </div>
+
+    <div class="panel" id="panel-done">
+      <div class="done-badge">
+        <svg viewBox="0 0 24 24" class="ic"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h1 class="title">Pronto</h1>
+      <div class="done-ratio"><span id="doneRatio">0</span><i>% menor</i></div>
+      <div class="done-flow">
+        <span id="doneIn">0</span>
+        <svg viewBox="0 0 24 24" class="ic arrow"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span class="out" id="doneOut">0</span>
+      </div>
+      <div class="done-time">Feito em <b id="doneTime">0s</b></div>
+      <div class="done-actions">
+        <button class="btn primary" id="btnOpen">Abrir video</button>
+        <button class="btn ghost" id="btnReveal">Mostrar na pasta</button>
+        <button class="btn ghost" id="btnAgain">Comprimir outro</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </section>
+</main>
+
+<script src="vendor/three.min.js"></script>
+<script src="vendor/gsap.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+# artefatos de compilacao
+/build/
+
+# dependencias grandes baixadas, nao vao para o git
+# ffmpeg embutido (baixe o build gpl-shared e coloque aqui)
+/bin/
+# SDK do WebView2 (baixado via nuget)
+/third_party/
+
+# arquivos do Visual Studio e do sistema
+*.user
+*.suo
+*.obj
+*.exe
+*.res
+*.ilk
+*.pdb
+Thumbs.db
+desktop.ini
+.vs/
