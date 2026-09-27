@@ -1,46 +1,47 @@
 # KernelP
 
-Compressor de video local para Windows. Interface premium em WebView2, nucleo em C++
-e compressao acelerada pela GPU via FFmpeg NVENC. Sem upload, sem anuncio, sem fila.
+Comprime video no seu PC. Rápido, sem upload, sem anúncio e sem enrolação.
 
-## Como funciona
-- Janela nativa C++ (`src/main.cpp`) hospeda a interface WebView2.
-- O nucleo (`src/engine.cpp`) detecta a GPU, le o video com ffprobe e conduz o
-  ffmpeg calculando o bitrate alvo para atingir a reducao escolhida.
-- Na sua maquina o encoder padrao e HEVC NVENC na RTX 4060. AV1 NVENC tambem
-  disponivel. Sem GPU compativel cai para HEVC Quick Sync ou libx265 na CPU.
+Você joga o video, escolhe o quanto quer reduzir e pronto. Tudo roda na sua
+máquina, então nada do seu video vai parar em servidor nenhum.
 
-## Executavel unico
-A interface e o FFmpeg ficam embutidos dentro do proprio `KernelP.exe` como
-recursos (ver `src/app.rc`). Voce compartilha so o `.exe`, com cerca de 183 MB.
+## Como usar
 
-- A interface e servida direto da memoria, sem pasta ao lado.
-- Na primeira abertura o app extrai o FFmpeg para `%LOCALAPPDATA%\KernelP\runtime`
-  uma unica vez. Depois abre na hora.
-- Se existir uma pasta `bin` ao lado do exe, ele usa essa em vez de extrair. Util
-  durante o desenvolvimento.
+1. Baixe o KernelP.exe e abra.
+2. Clique em Escolher video ou arraste um arquivo pra dentro.
+3. Escolha quanto reduzir, o codec e a velocidade.
+4. Clique em Comprimir.
 
-## Requisitos
-- Windows 10 ou 11 de 64 bits com WebView2 Runtime (ja vem no Windows 11)
-- Nada mais para usar. Tudo vai dentro do executavel
-- Visual Studio 2022 com ferramentas C++ apenas para compilar
+O video comprimido sai na mesma pasta do original com o final _KernelP.mp4. O seu
+arquivo original continua intacto.
 
-## Compilar
-As pastas `ui` e `bin` precisam existir na hora de compilar porque o `app.rc`
-as embute. O `bin` traz `ffmpeg.exe`, `ffprobe.exe` e as DLLs do build compartilhado.
+## O que dá pra ajustar
 
-## Compilar
-```
-cmake -S . -B build -G "Visual Studio 17 2022" -A x64
-cmake --build build --config Release
-```
-O executavel fica em `build/Release/KernelP.exe` com a pasta `ui` ao lado.
+Quanto reduzir. Leve, forte ou extrema. A extrema deixa o arquivo bem pequeno.
 
-## Usar
-1. Abra o KernelP.
-2. Escolha ou arraste um video.
-3. Ajuste quanto reduzir, o codec e a velocidade.
-4. Clique em Comprimir. O resultado sai na mesma pasta com o sufixo `_KernelP.mp4`.
+Codec. HEVC abre em qualquer aparelho. AV1 comprime ainda mais mas pede um player
+mais recente.
 
-## Desempenho medido
-94.6 MB para 9.77 MB, reducao de 89.7%, em 1.77 s num clipe 1080p de 20 s na RTX 4060.
+Velocidade. Turbo pra quando você tem pressa, ou qualidade máxima pra quando quer
+o melhor resultado.
+
+## O que você precisa
+
+Só um Windows 10 ou 11 de 64 bits. Não precisa instalar mais nada, o compressor já
+vem completo dentro do próprio arquivo.
+
+Ele usa a placa de video pra acelerar quando encontra uma compatível, seja NVIDIA,
+Intel ou AMD. Se não tiver nenhuma, ele comprime pelo processador do mesmo jeito, só
+demora um pouco mais.
+
+## Detalhes bons de saber
+
+A primeira vez que você abre demora uns segundos a mais, porque o app prepara o
+motor de compressão. Depois disso abre na hora.
+
+O quanto seu video vai encolher depende do video. Uma gravação de tela ou de celular
+reduz muito com ótima qualidade. Um video que já veio bem comprimido reduz menos.
+
+## Feito por
+
+wkaiquedev. Segue lá no github.
